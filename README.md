@@ -77,7 +77,7 @@ signal_fft=signal_fft(1:Nr/2);
 
 ![alt text](https://github.com/itahir-autonom/SFND_Radar_Detection/blob/master/images/2fft.jpg)
 
-7. CFAR implementation is done by introducing a CFAR matrix of size RDM(2nd FFT) which is set to 0. Then using the training and guarding cells Tr,Td,Gr,Gd as given in the walkthrough video. Then Cut(slide) the cell across the complete matrix, then measures the noise through each iterations from the training cells.Then add offset to the threshold value calculated through noise. And if the cut level is more than threshold, set the value of CFAR =1.
+7. CFAR implementation is done by introducing a CFAR matrix of size RDM(2nd FFT) which is set to 0. Then using the training and guarding cells Tr,Td,Gr,Gd as given in the walkthrough video. Then Cut(slide) the cell across the complete matrix, then measures the noise through each iterations from the training cells.Then add offset to the threshold value calculated through noise. And if the cut level is more than threshold, set the value of CFAR =1.And this waz the target can be detected since it will above the threshold.
 
 Steps.
 7_1.choose the training as guard cells as mentioned in the walkthrough video 
@@ -118,7 +118,7 @@ end
 
 ![alt text](https://github.com/itahir-autonom/SFND_Radar_Detection/blob/master/images/threshold%20block.jpg)
 
-this was done by taking the cells at edges to 0.
+this was solved by taking the cells at edges to 0.
 
 ```
 % The process above will generate a thresholded block, which is smaller 
