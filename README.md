@@ -11,8 +11,6 @@ The explaination of the Project as following
 
 1. Target Initial Position and Velocity is taken Arbitrary
 ```
-% define the target's initial position and velocity. Note : Velocity
-% remains contant
 R_ini=110;   %Initial Position of the Target
 Vo=60;       %Initial Velocity of the Target
 ```
@@ -20,12 +18,9 @@ Vo=60;       %Initial Velocity of the Target
 2. Calculation of Bandwidth, Chrip Time and slope are
 
 ```
-%Design the FMCW waveform by giving the specs of each of its parameters.
-% Calculate the Bandwidth (B), Chirp Time (Tchirp) and Slope (slope) of the FMCW
-% chirp using the requirements above.
 B=c/(2*R_res);  %Bandwidth of FMCW Radar
-Tchirp=5.5*2*Rmax/c;
-slope=B/Tchirp;
+Tchirp=5.5*2*Rmax/c; %Chirp Time
+slope=B/Tchirp; %slope
 ```
 
 3. For all the time steps, Transmitted and Received Signal is calculated on 
@@ -72,15 +67,6 @@ signal_fft=abs(signal_fft);
 % Output of FFT is double sided signal, but we are interested in only one side of the spectrum.
 % Hence we throw out half of the samples.
 signal_fft=signal_fft(1:Nr/2);
-
-%plotting the range
-figure ('Name','Range from First FFT')
-
- % plot FFT output 
-plot(signal_fft)
-xlabel('Range');
- 
-axis ([0 200 0 0.4]);
 ```
 
 
@@ -91,8 +77,20 @@ axis ([0 200 0 0.4]);
 
 ![alt text](https://github.com/itahir-autonom/SFND_Radar_Detection/blob/master/images/2fft.jpg)
 
-7. CFAR implementation is done using values by trail and error of the training and the guard cells and then going through the cells to calculate the noise level and threshold.
-And replacing the values of signal under and over threshold to 1 and 0 respectively and finally filtering some corner cells which wasnt able to be thresholded and setting them to 0.
+7. CFAR implementation is done by introducing a CFAR matrix of size RDM(2nd FFT) which is set to 0. Then using the training and guarding cells Tr,Td,Gr,Gd as given in the walkthrough video. Then Cut(slide) the cell across the complete matrix, then measures the noise through each iterations from the training cells.Then add offset to the threshold value calculated through noise. And if the cut level is more than threshold, set the value of CFAR =1.
+
+Steps.
+7_1.choose the training as guard cells as mentioned in the walkthrough video 
+```
+Tr=10, Td=8, Gr=4, Gd=4 and offset =6
+```
+7_2.Introduce a matrix to save CFAR values of 0 and 1, which is equal to the size of RDM
+
+7_3.Slide the cell under test across the complete matrix using a loop
+
+7_4. Within the loop sum and average the noise level of all the training cells and adding offset value to it. This will be threshold.
+
+7_5. Filter the cells in the matrix with respect to this threshold and if the signal is more than the threshold, assign the value to CFAR 1.
 
 ```
 for i = Tr+Gr+1:Nr-(Tr+Gr)
@@ -115,8 +113,14 @@ for i = Tr+Gr+1:Nr-(Tr+Gr)
         end        
     end
 end
+```
+7_6. Since the initilized variable of CFAR was zero at the start, which means the cells at the edge didnt werenot considered under CUT and therefore were not processed. This gives the threshold block as
 
+![alt text](https://github.com/itahir-autonom/SFND_Radar_Detection/blob/master/images/threshold%20block.jpg)
 
+this was done by taking the cells at edges to 0.
+
+```
 % The process above will generate a thresholded block, which is smaller 
 %than the Range Doppler Map as the CUT cannot be located at the edges of
 %matrix. Hence,few cells will not be thresholded. To keep the map size same
