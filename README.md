@@ -11,7 +11,6 @@ The explaination of the Project as following
 
 1. Target Initial Position and Velocity is taken Arbitrary
 ```
-% *%TODO* :
 % define the target's initial position and velocity. Note : Velocity
 % remains contant
 R_ini=110;   %Initial Position of the Target
@@ -21,7 +20,6 @@ Vo=60;       %Initial Velocity of the Target
 2. Calculation of Bandwidth, Chrip Time and slope are
 
 ```
-% *%TODO* :
 %Design the FMCW waveform by giving the specs of each of its parameters.
 % Calculate the Bandwidth (B), Chirp Time (Tchirp) and Slope (slope) of the FMCW
 % chirp using the requirements above.
@@ -37,17 +35,15 @@ slope=B/Tchirp;
 for i=1:length(t)         
     
     
-    % *%TODO* :
     %For each time stamp update the Range of the Target for constant velocity. 
     r_t(i)=R_ini+Vo*t(i);     %position of the vehicle at time t
-    td(i)=2*r_t(i)/c;         %Trip time of the signal
-    % *%TODO* :
+    td(i)=2*r_t(i)/c;         %Trip time of the signal\
+    
     %For each time sample we need update the transmitted and
     %received signal. 
     Tx(i) = cos(2*pi*(fc*t(i)+slope*0.5*t(i)^2));
     Rx(i) = cos(2*pi*(fc*(t(i)-td(i))+slope*0.5*((t(i)-td(i))^2)));
     
-    % *%TODO* :
     %Now by mixing the Transmit and Receive generate the beat signal
     %This is done by element wise matrix multiplication of Transmit and
     %Receiver Signal
@@ -63,27 +59,23 @@ end
 ![alt text](https://github.com/itahir-autonom/SFND_Radar_Detection/blob/master/images/FFT.png)
 
 ```
-% *%TODO* :
 %run the FFT on the beat signal along the range bins dimension (Nr) and
 %normalize.
 
 signal_fft=fft(Mix,Nr)./Nr;
 
- % *%TODO* :
+
 % Take the absolute value of FFT output
 signal_fft=abs(signal_fft);
 
- % *%TODO* :
+
 % Output of FFT is double sided signal, but we are interested in only one side of the spectrum.
 % Hence we throw out half of the samples.
 signal_fft=signal_fft(1:Nr/2);
 
-
 %plotting the range
 figure ('Name','Range from First FFT')
-subplot(2,1,1)
 
- % *%TODO* :
  % plot FFT output 
 plot(signal_fft)
 xlabel('Range');
@@ -92,7 +84,7 @@ axis ([0 200 0 0.4]);
 ```
 
 
-![alt text](https://github.com/itahir-autonom/SFND_Radar_Detection/blob/master/images/FFT.jpg)
+![alt text](https://github.com/itahir-autonom/SFND_Radar_Detection/blob/master/images/1fft.jpg)
 
 
 6. 2nd FFT was already implemented in the code, which is as under
@@ -111,42 +103,35 @@ for i = Tr+Gr+1:Nr-(Tr+Gr)
         noise_G = db2pow(RDM(i-Gr:i+Gr,j-Gd:j+Gd));                    %noise level of Guard cells
         noise_level = sum(noise_TG(:)) - sum(noise_G(:));              %noise level of Training cells
         
-        %grid size and training cells
-        gridSize=(2*Tr+2*Gr+1)*(2*Td+2*Gd+1);
-        training_Cells=gridSize-(2*Gr+1)*(2*Gd+1);
-        
         %Threshold
-        threshold = offset + pow2db(noise_level/(training_Cells));
+        threshold = offset + pow2db(noise_level/(training_Cells/2));
         
         
         CUT = RDM(i,j);
-        if(CUT < threshold)
-            RDM(i,j) = 0;
+        if(CUT <= threshold)
+            CFAR(i,j) = 0;
         else
-            RDM(i, j) = 1;
+            CFAR(i, j) = 1;
         end        
     end
 end
 
 
-
-% *%TODO* :
 % The process above will generate a thresholded block, which is smaller 
 %than the Range Doppler Map as the CUT cannot be located at the edges of
 %matrix. Hence,few cells will not be thresholded. To keep the map size same
 % set those values to 0. 
 
  
-RDM(1:Tr+Gr,:)=0;
-RDM(Nr-(Tr+Gr):Nr,:)=0;
-RDM(:,1:Td+Gd)=0;
-RDM(:,Nd-(Td+Gd):Nd)=0;
+CFAR(1:Tr+Gr,:)=0;
+CFAR(Nr-(Tr+Gr):Nr,:)=0;
+CFAR(:,1:Td+Gd)=0;
+CFAR(:,Nd-(Td+Gd):Nd)=0;
 
 
-% *%TODO* :
 %display the CFAR output using the Surf function like we did for Range
 %Doppler Response output.
-figure,surf(doppler_axis,range_axis,RDM);
+figure,surf(doppler_axis,range_axis,CFAR);
 colorbar;
 ```
 
@@ -154,5 +139,5 @@ And this resulted in the detection as
 
 
 
-![alt text](https://github.com/itahir-autonom/SFND_Radar_Detection/blob/master/images/detect.jpg)
+![alt text](https://github.com/itahir-autonom/SFND_Radar_Detection/blob/master/images/final.jpg)
 
