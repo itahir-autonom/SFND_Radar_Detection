@@ -217,12 +217,12 @@ end
 %than the Range Doppler Map as the CUT cannot be located at the edges of
 %matrix. Hence,few cells will not be thresholded. To keep the map size same
 % set those values to 0. 
+
  
 RDM(1:Tr+Gr,:)=0;
 RDM(Nr-(Tr+Gr):Nr,:)=0;
 RDM(:,1:Td+Gd)=0;
 RDM(:,Nd-(Td+Gd):Nd)=0;
-
 
 
 % *%TODO* :
